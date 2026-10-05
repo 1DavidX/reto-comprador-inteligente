@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reto: Comprador Inteligente</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#121212;color:#fff;font-family:Arial,sans-serif}
+header{padding:16px 20px;background:#1e1e1e;border-bottom:1px solid #333;display:flex;justify-content:space-between;gap:12px;position:sticky;top:0}
+main{max-width:1000px;margin:auto;padding:24px 16px}.screen{display:none}.active{display:block}
+.hero,.card{background:#1e1e1e;border:1px solid #333;border-radius:16px;padding:24px}
+.hero{text-align:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.card{cursor:pointer}.card:hover,.choice:hover{border-color:#ff5500}.selected{border:2px solid #ff5500}
+button{border:0;border-radius:10px;padding:12px 18px;background:#ff5500;color:#fff;font-weight:bold;cursor:pointer}
+.choice{display:block;width:100%;margin:10px 0;text-align:left;background:#242424;border:1px solid #444}
+.muted,small{color:#aaa}.price{font-size:21px;font-weight:bold;margin:12px 0}
+.tag{display:inline-block;background:#333;padding:5px 8px;border-radius:20px;font-size:12px}
+.bar{height:8px;background:#333;border-radius:8px;margin:18px 0}.fill{height:100%;background:#ff5500;border-radius:8px}
+.result{font-size:32px;font-weight:bold}
+</style>
+</head>
+<body>
+<header><b>🛒 RETO: COMPRADOR INTELIGENTE</b><b>$200.000 virtuales</b></header>
+<main>
+<section id="start" class="screen active">
+<div class="hero"><h1>¿Qué tan buen comprador digital eres?</h1>
+<p>Haz una compra simulada y toma decisiones como si estuvieras en una tienda virtual.</p>
+<p class="muted">Actividad académica. No solicita datos reales ni realiza pagos.</p>
+<button onclick="show('r1')">Comenzar</button></div>
+</section>
+
+<section id="r1" class="screen">
+<h2>Ronda 1 · Elige</h2><p>¿Qué producto te da más confianza?</p><div class="bar"><div class="fill" style="width:25%"></div></div>
+<div class="grid">
+<div class="card" onclick="pick(0,this)"><span class="tag">A</span><h3>Camiseta básica</h3><p class="muted">“Cómoda y bonita.”</p><div class="price">$75.000</div><small>Sin reseñas</small></div>
+<div class="card" onclick="pick(1,this)"><span class="tag">B</span><h3>Camiseta Essential</h3><p class="muted">Algodón 100% · 240 g/m² · S–XL</p><div class="price">$85.000</div><small>⭐ 4.8/5 · 127 reseñas</small></div>
+<div class="card" onclick="pick(2,this)"><span class="tag">C</span><h3>Camiseta Premium</h3><p class="muted">Material no especificado.</p><div class="price">$95.000</div><small>⭐ 5/5 · 3 reseñas</small></div>
+</div><br><button onclick="next1()">Continuar</button>
+</section>
+
+<section id="r2" class="screen">
+<h2>Ronda 2 · Investiga</h2><p id="chosen"></p>
+<div class="bar"><div class="fill" style="width:50%"></div></div>
+<div class="card"><h3>Antes de pagar...</h3><p>No aparece una guía de tallas en centímetros.</p></div>
+<button class="choice" onclick="ans(25,'r3')">🔎 Busco la guía de tallas antes de comprar.</button>
+<button class="choice" onclick="ans(0,'r3')">🛒 Compro mi talla habitual sin revisar.</button>
+</section>
+
+<section id="r3" class="screen">
+<h2>Ronda 3 · Carrito</h2>
+<p>Producto: <b>$85.000</b>. Envío: <b>$8.000</b>. Un accesorio de $20.000 activa envío gratis.</p>
+<div class="bar"><div class="fill" style="width:75%"></div></div>
+<button class="choice" onclick="ans(25,'r4')">🚚 Pago $93.000 porque solo necesito el producto.</button>
+<button class="choice" onclick="ans(25,'r4')">🎒 Agrego el accesorio porque realmente lo necesito y aprovecho el envío gratis.</button>
+<button class="choice" onclick="ans(0,'r4')">💸 Agrego cosas que no necesito solo por el envío gratis.</button>
+</section>
+
+<section id="r4" class="screen">
+<h2>Ronda 4 · Confianza</h2>
+<p>La tienda muestra fotos y precio, pero no tiene políticas de devolución ni datos de contacto.</p>
+<div class="bar"><div class="fill" style="width:100%"></div></div>
+<button class="choice" onclick="finish(25)">⚠️ Investigo más antes de pagar.</button>
+<button class="choice" onclick="finish(0)">💳 Pago inmediatamente porque el precio me gusta.</button>
+</section>
+
+<section id="end" class="screen">
+<div class="hero"><h2>🏆 Resultado</h2><div id="score" class="result"></div>
+<p id="msg"></p><hr>
+<h3>¿Qué demuestra el reto?</h3>
+<p>Una tienda virtual no es solo un catálogo. La información del producto, la experiencia de usuario, el carrito, el envío y las señales de confianza influyen en la decisión de compra.</p>
+<button onclick="location.reload()">Jugar otra vez</button></div>
+</section>
+</main>
+<script>
+let score=0,p=-1;
+const data=[
+"Camiseta básica — $75.000. Descripción general y sin reseñas.",
+"Camiseta Essential — $85.000. Algodón 100%, 240 g/m², tallas S–XL, 4.8/5.",
+"Camiseta Premium — $95.000. Material no especificado, 5/5 con solo 3 reseñas."
+];
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function pick(i,e){p=i;document.querySelectorAll('#r1 .card').forEach(x=>x.classList.remove('selected'));e.classList.add('selected')}
+function next1(){if(p<0){alert('Elige una opción primero.');return}document.getElementById('chosen').innerHTML='<b>Elegiste:</b> '+data[p];show('r2')}
+function ans(points,next){score+=points;show(next)}
+function finish(points){score+=points;document.getElementById('score').textContent=score+'/100';document.getElementById('msg').textContent=score>=75?'¡Buen trabajo! Tomaste decisiones pensando como consumidor digital.':'Puedes mejorar: antes de comprar, revisa información, costos y señales de confianza.';show('end')}
+</script>
+</body>
+</html>
